@@ -1,0 +1,11 @@
+// Did any submitted credentials get used by someone other than the genuine user?
+// Looking for a successfull login from an unknown country, ip, time, etc
+
+let CredVictims = CloudoraMsgTrace_CL
+    | where EventType == "Click" and CredentialsSubmitted == "Yes"
+    | distinct RecipientAddress;
+CloudoraSignIn_CL
+| where UserPrincipalName in (CredVictims)
+| where ResultType == "0"
+| project TimeGenerated, UserPrincipalName, AppDisplayName, IPAddress, City, Country, DeviceOS, Browser
+| order by UserPrincipalName asc, TimeGenerated asc
