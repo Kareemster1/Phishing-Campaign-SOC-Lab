@@ -1,0 +1,17 @@
+// Built to catch the compromise automatically
+// Always aim to improve detection by learning from a compromise and implementing a solution for the future
+// This rule correlates a phishing click with a following foreign sign-in in a short window afterwards, from an external IP and location outside the baseline footprint
+
+let Clicks = CloudoraMsgTrace_CL
+| where EventType == "Click"
+| project ClickTime = TimeGenerated, UserPrincipalName = RecipientAddress,
+Url, ClickIP;
+CloudoraSignIn_CL
+| where ResultType == "0"
+| join kind=inner Clicks on UserPrincipalName
+| where TimeGenerated between (ClickTime .. (ClickTime + 6h))
+| where IPAddress != ClickIP
+| where Country !in ("United Kingdom", "United States")
+| project UserPrincipalName, ClickTime, LoginTime = TimeGenerated,
+IPAddress, Country, DeviceOS, Browser, Url
+| order by LoginTime asc
