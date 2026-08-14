@@ -1,0 +1,12 @@
+// Build a list of everyone who received the phish but did not click
+// Build the list of clickers and subtract them from the total delivered-to list
+// Important to bring awareness and communication to these users
+
+let Clickers = CloudoraMsgTrace_CL
+| where EventType == "Click"
+| distinct RecipientAddress;
+CloudoraMsgTrace_CL
+| where EventType == "Delivery" and DeliveryAction == "Delivered"
+| distinct RecipientAddress
+| where RecipientAddress !in (Clickers)
+| order by RecipientAddress asc
