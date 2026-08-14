@@ -1,0 +1,8 @@
+// Pivot to the attacker IP address
+// Has anyone else been compromised (Never assume only one victim)
+
+CloudoraSignIn_CL
+| where IPAddress startswith "198.18.7." and ResultType == "0"
+| summarize FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated),
+            Apps=make_set(AppDisplayName) by UserPrincipalName, IPAddress, Country
+| order by FirstSeen asc
