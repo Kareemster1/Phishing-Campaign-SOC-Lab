@@ -1,0 +1,7 @@
+// Determine what users clicked the link and which ones entered their credentials
+//
+
+CloudoraMsgTrace_CL
+| where EventType == "Click"
+| project TimeGenerated, Campaign, RecipientAddress, Url, ClickIP, CredentialsSubmitted
+| order by TimeGenerated asc 
