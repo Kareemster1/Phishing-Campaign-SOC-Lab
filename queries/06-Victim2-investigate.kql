@@ -1,0 +1,20 @@
+// Confirm user submitted credentials and investigate further
+
+CloudoraMsgTrace_CL
+| where RecipientAddress == "ryan.boyd@cloudora.io" and EventType == "Click"
+| project TimeGenerated, Campaign, Url, ClickIP, CredentialsSubmitted
+
+// Build attacker timeline (sign-on logs)
+
+CloudoraSignIn_CL
+| where UserPrincipalName == "ryan.boyd@cloudora.io"
+| project TimeGenerated, AppDisplayName, IPAddress, City, Country, DeviceOS, Browser, ResultType
+| order by TimeGenerated asc
+
+// Baseline account
+// Build a rapport for common log in device, location, ip and compare against new data
+
+CloudoraSignIn_CL
+| where UserPrincipalName == "ryan.boyd@cloudora.io"
+| summarize SignIns=count() by Country, City, IPAddress, DeviceOS
+| order by SignIns desc
